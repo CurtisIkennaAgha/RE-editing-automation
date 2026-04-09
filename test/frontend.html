@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>File Upload Test</title>
+</head>
+<body>
+  <h1>Upload Files to FastAPI</h1>
+  <form id="uploadForm">
+    <input type="file" id="files" name="files" multiple>
+    <button type="submit">Upload</button>
+  </form>
+  <pre id="result"></pre>
+  <script>
+    document.getElementById('uploadForm').onsubmit = async function(e) {
+      e.preventDefault();
+      const filesInput = document.getElementById('files');
+      const formData = new FormData();
+      for (const file of filesInput.files) {
+        formData.append('files', file);
+      }
+      const response = await fetch('http://127.0.0.1:8000/upload/', {
+        method: 'POST',
+        body: formData
+      });
+      const result = await response.json();
+      document.getElementById('result').textContent = JSON.stringify(result, null, 2);
+    };
+  </script>
+</body>
+</html>
