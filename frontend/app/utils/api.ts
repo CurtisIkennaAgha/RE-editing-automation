@@ -12,7 +12,7 @@ export async function uploadClips(clips: FileList) {
 
 export async function clearClips(){
     const response = await fetch('http://127.0.0.1:8000/clear/', {
-    method: 'DELTE',
+    method: 'DELETE',
   });
   return response.json();
 }

@@ -10,6 +10,7 @@ from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 import os
+import shutil
 
 import json
 
@@ -62,6 +63,20 @@ async def upload_files(clips: List[UploadFile] = File(...)):
 @app.get("/files/")
 def get_files():
     return {"files": get_all_files()}
+
+@app.delete("/clear/")
+def clear():
+    for filename in os.listdir(UPLOAD_DIR):
+        file_path = os.path.join(UPLOAD_DIR, filename)
+        if filename == "files.json":
+            with open("uploads/files.json", "w") as f:
+                f.write("[]")
+        else:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)  # Remove file or link
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)  # Remove directory and its contents
+
 
 
 #endpoint 2 - take in tmestampt for file number x 
