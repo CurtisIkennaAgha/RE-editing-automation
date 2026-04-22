@@ -71,12 +71,27 @@ def clear():
         if filename == "files.json":
             with open("uploads/files.json", "w") as f:
                 f.write("[]")
-        else:
+        if filename == "timestamps.json":
+            with open("uploads/timestamps.json", "w") as f:
+                f.write("[]")
+        if filename != "timestamps.json" and filename != "files.json":
             if os.path.isfile(file_path) or os.path.islink(file_path):
                 os.unlink(file_path)  # Remove file or link
             elif os.path.isdir(file_path):
                 shutil.rmtree(file_path)  # Remove directory and its contents
 
+
+@app.post("/posttimestamps")
+def post_timestamps(timestamps : List[str]):
+    new_timestamps = ""
+    with open("uploads/timestamps.json", "r") as t:
+        new_timestamps = json.load(t)
+    new_timestamps.extend(timestamps)
+
+    with open("uploads/timestamps.json", "w") as t:
+        json.dump(new_timestamps, t)
+
+    
 
 
 #endpoint 2 - take in tmestampt for file number x 
