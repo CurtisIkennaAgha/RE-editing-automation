@@ -50,3 +50,7 @@ export default function Home() {
     </div>
   );
 }
+
+#page 1 - give clips , give Outro , click start 
+#page 2 - shows clip 1 capcut style, can be cut to x length and that cut is tiestanp given to timetstmpas endpoitn repeated for all clips 
+#page 3 - downlaod all clips 

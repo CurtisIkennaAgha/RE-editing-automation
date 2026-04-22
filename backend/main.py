@@ -58,6 +58,18 @@ async def upload_files(clips: List[UploadFile] = File(...)):
         results.append(file_info)
     return {"files": results}
 
+@app.post("/uploadoutro/")
+async def upload_outro(clips: List[UploadFile] = File(...)):
+    results = []
+    for clip in clips:
+        file_location = os.path.join(UPLOAD_DIR, clip.filename)
+        with open(file_location, "wb") as f:
+            f.write(await clip.read())
+        file_info = {"filename": outro, "saved_to": file_location}
+        save_file_metadata(file_info)
+        results.append(file_info)
+    return {"files": results}
+
 
 # GET endpoint to return all uploaded files metadata
 @app.get("/files/")
@@ -91,8 +103,14 @@ def post_timestamps(timestamps : List[str]):
     with open("uploads/timestamps.json", "w") as t:
         json.dump(new_timestamps, t)
 
-    
+def edit_clips():
+    #take clip x 
+    #cut clip x to end at timestamp x
+    #add clip "outro" at the end 
+    #save clip x 
+    #repeat for all clips 
 
+@app.get("/downloadclips")
+def download_clips():
+    #return all edited clips 
 
-#endpoint 2 - take in tmestampt for file number x 
-#endpoint 3 - edit and return edite viedeos 
