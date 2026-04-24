@@ -5,7 +5,7 @@
 #to run api: uvicorn filename:app --reload
 #access api http://127.0.0.1:5500
 
-
+from moviepy import VideoFileClip, TextClip, CompositeVideoClip, concatenate_videoclips
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
@@ -65,7 +65,7 @@ async def upload_outro(clips: List[UploadFile] = File(...)):
         file_location = os.path.join(UPLOAD_DIR, clip.filename)
         with open(file_location, "wb") as f:
             f.write(await clip.read())
-        file_info = {"filename": outro, "saved_to": file_location}
+        file_info = {"filename": "Outro", "saved_to": file_location}
         save_file_metadata(file_info)
         results.append(file_info)
     return {"files": results}
@@ -104,11 +104,38 @@ def post_timestamps(timestamps : List[str]):
         json.dump(new_timestamps, t)
 
 def edit_clips():
+        with open("uploads/files.json", "r") as f:
+            files = json.load(f)    
+        with open("uploads/timestamps.json", "r") as t:
+            timestamps = json.load(t)
+        outro = next(f for f in files if f["filename"] == "Outro")
+        outro_clip = ( VideoFileClip(f"uploads/{outro['filename']}"))
+        for i, file in enumerate(files):
+            if file["filename"] != "Outro":
+                current_timestamp = timestamps[i]
+                clip = ( VideoFileClip(f"uploads/{file['filename']}")
+                            .subclipped(0, current_timestamp)
+                            
+                        )
+                clip = concatenate_videoclips([clip, outro_clip])
+                clip.write_videofile(f"edits/clip_{file['filename']}.mp4")
+
     #take clip x 
     #cut clip x to end at timestamp x
     #add clip "outro" at the end 
     #save clip x 
     #repeat for all clips 
+
+# from moviepy import VideoFileClip, TextClip, CompositeVideoClip
+
+# # Load file example.mp4 and keep only the subclip from 00:00:10 to 00:00:20
+# # Reduce the audio volume to 80% of its original volume
+
+# clip = (
+#     VideoFileClip("long_examples/example2.mp4")
+#     .subclipped(10, 20)
+#     .with_volume_scaled(0.8)
+# )
 
 @app.get("/downloadclips")
 def download_clips():
