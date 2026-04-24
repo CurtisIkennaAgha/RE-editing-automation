@@ -6,12 +6,13 @@
 #access api http://127.0.0.1:5500
 
 from moviepy import VideoFileClip, TextClip, CompositeVideoClip, concatenate_videoclips
+import zipfile
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from typing import List
 import os
 import shutil
-
 import json
 
 app = FastAPI()
@@ -103,28 +104,32 @@ def post_timestamps(timestamps : List[str]):
     with open("uploads/timestamps.json", "w") as t:
         json.dump(new_timestamps, t)
 
+@app.post("/editclips")
 def edit_clips():
+        #load file and timestamps json
         with open("uploads/files.json", "r") as f:
             files = json.load(f)    
         with open("uploads/timestamps.json", "r") as t:
             timestamps = json.load(t)
+        #search and save outro 
         outro = next(f for f in files if f["filename"] == "Outro")
         outro_clip = ( VideoFileClip(f"uploads/{outro['filename']}"))
+        #loop through files, if theyre not outro edit them 
         for i, file in enumerate(files):
             if file["filename"] != "Outro":
+                #find corresponding timestamp
                 current_timestamp = timestamps[i]
+                #load file as a clip and cut it to the timestamp
                 clip = ( VideoFileClip(f"uploads/{file['filename']}")
                             .subclipped(0, current_timestamp)
                             
                         )
+                #concatenate the clips togethere
                 clip = concatenate_videoclips([clip, outro_clip])
+                #save clip
                 clip.write_videofile(f"edits/clip_{file['filename']}.mp4")
 
-    #take clip x 
-    #cut clip x to end at timestamp x
-    #add clip "outro" at the end 
-    #save clip x 
-    #repeat for all clips 
+
 
 # from moviepy import VideoFileClip, TextClip, CompositeVideoClip
 
@@ -139,5 +144,14 @@ def edit_clips():
 
 @app.get("/downloadclips")
 def download_clips():
+    with zipfile.ZipFile("editedclips.zip", "w") as z:
+        for filename in os.listdir("edits"):
+            file_path = os.path.join("edits", filename)
+            z.write(file_path)
+    return FileResponse("editedclips.zip", media_type="application/zip")
+
+
+
+
     #return all edited clips 
 
