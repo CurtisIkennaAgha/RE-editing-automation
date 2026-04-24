@@ -113,7 +113,7 @@ def edit_clips():
             timestamps = json.load(t)
         #search and save outro 
         outro = next(f for f in files if f["filename"] == "Outro")
-        outro_clip = ( VideoFileClip(f"uploads/{outro['filename']}"))
+        outro_clip = ( VideoFileClip(outro['saved_to']))
         #loop through files, if theyre not outro edit them 
         for i, file in enumerate(files):
             if file["filename"] != "Outro":
@@ -121,7 +121,7 @@ def edit_clips():
                 current_timestamp = timestamps[i]
                 #load file as a clip and cut it to the timestamp
                 clip = ( VideoFileClip(f"uploads/{file['filename']}")
-                            .subclipped(0, current_timestamp)
+                            .subclipped(0, float(current_timestamp))
                             
                         )
                 #concatenate the clips togethere
@@ -150,8 +150,4 @@ def download_clips():
             z.write(file_path)
     return FileResponse("editedclips.zip", media_type="application/zip")
 
-
-
-
-    #return all edited clips 
 
